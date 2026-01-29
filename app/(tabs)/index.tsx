@@ -1,7 +1,9 @@
-import React from 'react';
-import { FlatList, SafeAreaView, StyleSheet, Text, View } from 'react-native';
-import SongCard from '../../components/SongCard/SongCard';
+import React, { useState } from 'react';
+import { FlatList, SafeAreaView, StyleSheet, View } from 'react-native';
+import SearchBar from '../../components/SearchBar';
+import SongCard from '../../components/SongCard';
 import music_data from '../../music-data.json';
+
 
 interface Song {
   id: string;
@@ -15,16 +17,28 @@ interface Song {
 
 export default function HomeScreen() {
 
+  const [list, setList] = useState(music_data);
   const renderSong = ({item}: {item: Song}) => <SongCard song={item} />;
   const renderSeparator = () => <View style={styles.seperator} />;
+  const handleSearch = (text: string) => {
+    const filteredList = music_data.filter(song => {
+      const searchedText = text.toLowerCase();
+      const currentTitle = song.title.toLowerCase();
+      const currentArtist = song.artist.toLowerCase();
+      const currentAlbum = song.album.toLowerCase();
+      return currentTitle.includes(searchedText) || currentArtist.includes(searchedText) || currentAlbum.includes(searchedText);
+
+            
+      
+    });
+    setList(filteredList);
+  };
   
   return (
     <SafeAreaView style = {styles.container}>
-      <View style={styles.titleContainer}>
-        <Text style={{ color:'white',fontSize: 24, fontWeight: '600' }}>Music Library</Text>
-      </View>
+      <SearchBar onSearch={handleSearch}/>
       <FlatList
-        data={music_data}
+        data={list}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderSong}
         ItemSeparatorComponent={ renderSeparator }
@@ -43,21 +57,5 @@ const styles = StyleSheet.create({
     height: 2,
     backgroundColor: '#e0e0e0',
     marginVertical: 8,
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
   },
 });
